@@ -4,7 +4,9 @@
 
 #pragma once
 
+#include<Mmsystem.h>
 
+#include<direct.h>
 // CMy0141124825_houchuanhaoDlg 对话框
 class CMy0141124825_houchuanhaoDlg : public CDialogEx
 {
@@ -30,8 +32,34 @@ protected:
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
 public:
+	CString getPath();
+	float get_score(CString str1, CString str2);
+	CString getAnswer();
+	bool open = 0;
+	void loade();
+	CString now_iPos; //下拉框当前选中的行的值
+	CString song;
+	int total_minutes = 15;
+	int total_questions = 5;
+	CString aduio_format = _T("mp3");
+	int max_speed = 100;
+	double percentage_accuracy = 0.7000;
+	double percentage_speed = 0.3000;
+	MCI_OPEN_PARMS op;
+	void play();
+	void Stop();
+	HWND m_hWnd;
+	DWORD DeviceId;
+	MCI_OPEN_PARMS mciopenparms;
+	DWORD getinfo(UINT wDeviceID, DWORD item);
+	void Load(HWND hWnd, CString strFilepath);
+	int sumtime = 900;
+
+
+
+	//*******************************************************
 	void Output_pdf(CString id_number, CString exam_number, double accuracy_rate, double typing_speed, double score, CString content);
-	CString getPath(); //获取路径
+	//CString getPath(); //获取路径
     CString readIni(CString iniPath, CString path); //读取配置文件
 	void play(CString musicPath); //播放音乐
 	void stop(); //停止播放音乐
@@ -39,4 +67,5 @@ public:
 	double getScore(); //获取成绩
 	//------------------------------------------------------
 	afx_msg void OnBnClickedButton2();
+	afx_msg void OnBnClickedButton1();
 };

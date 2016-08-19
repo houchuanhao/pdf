@@ -5,9 +5,22 @@
 #include "stdafx.h"
 #include "0141124825_houchuanhao.h"
 #include "0141124825_houchuanhaoDlg.h"
+#include<Mmsystem.h>
+
+#include<direct.h>
+
+#pragma   comment(lib, "winmm.lib")
+
+#include<stdio.h>
+#include<string>
+#include<cstring>
 //#include "afxdialogex.h"
 #include "pdflib.h"
+
+#pragma   comment(lib, "winmm.lib")
+
 #pragma  comment(lib, "pdflib.lib") 
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -52,6 +65,7 @@ CMy0141124825_houchuanhaoDlg::CMy0141124825_houchuanhaoDlg(CWnd* pParent /*=NULL
 	: CDialogEx(CMy0141124825_houchuanhaoDlg::IDD, pParent)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
+	now_iPos = "1";
 }
 
 void CMy0141124825_houchuanhaoDlg::DoDataExchange(CDataExchange* pDX)
@@ -64,6 +78,7 @@ BEGIN_MESSAGE_MAP(CMy0141124825_houchuanhaoDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDC_BUTTON2, &CMy0141124825_houchuanhaoDlg::OnBnClickedButton2)
+	ON_BN_CLICKED(IDC_BUTTON1, &CMy0141124825_houchuanhaoDlg::OnBnClickedButton1)
 END_MESSAGE_MAP()
 
 
@@ -153,6 +168,15 @@ HCURSOR CMy0141124825_houchuanhaoDlg::OnQueryDragIcon()
 }
 
 //------------------------------------------------------------------------------------------------------------------------
+DWORD CMy0141124825_houchuanhaoDlg::getinfo(UINT wDeviceID, DWORD item)
+{
+	MCI_STATUS_PARMS mcistatusparms;
+	mcistatusparms.dwCallback = (DWORD)GetSafeHwnd();
+	mcistatusparms.dwItem = item;
+	mcistatusparms.dwReturn = 0;
+	mciSendCommand(wDeviceID, MCI_STATUS, MCI_STATUS_ITEM, (DWORD)&mcistatusparms);
+	return mcistatusparms.dwReturn;
+}
 void CMy0141124825_houchuanhaoDlg::Output_pdf(CString id_number, CString exam_number, double accuracy_rate, double typing_speed, double score, CString content)
 {
 
@@ -249,9 +273,67 @@ void CMy0141124825_houchuanhaoDlg::Output_pdf(CString id_number, CString exam_nu
 	PDF_delete(p);
 	return;
 }
+void CMy0141124825_houchuanhaoDlg::play()  //
+{
+	// TODO: 在此添加控件通知处理程序代码
+	// TODO: Add your control notification handler code here
+	DWORD cdlen;//音频文件长度
+	op.dwCallback = NULL;
+	op.lpstrAlias = NULL;
+	op.lpstrDeviceType = _T("MPEGAudio");  //设备类型，大多数文件可以这样设置 
+	//op.lpstrElementName = "C:\\WINDOWS\\Media\\Alarm02.wav"; //文件路径 
+	CString str = getPath() + aduio_format + "\\" + now_iPos + "\\" + now_iPos + "." + aduio_format;
 
 
+	MessageBox(str);
+	op.lpstrElementName = str; //文件路径 
+	op.wDeviceID = NULL;      //打开设备成功以后保存这个设备号备用 
+	UINT rs;        //接受函数返回结果 
+	//发送命令打开设备，成功返回0，否则返回错误号，第三个参数这里必须MCI_OPEN_ELEMENT  
+	rs = mciSendCommand(NULL, MCI_OPEN, MCI_OPEN_ELEMENT, (DWORD)&op);
+	mciSendCommand(NULL, MCI_SET, MCI_SET_DOOR_OPEN, NULL);
+	cdlen = getinfo(op.wDeviceID, MCI_STATUS_LENGTH);//获取音频文件长度
+	int length = int(cdlen) / 1000 + 1;
+	sumtime = length;
+	int a = int(cdlen);
+	if (rs == 0)        //设备打开成功就播放文件 
+	{
+		MCI_PLAY_PARMS pp;
+		pp.dwCallback = NULL;
+		pp.dwFrom = 0;      //开始播放的位置 
+		mciSendCommand(op.wDeviceID, MCI_PLAY, MCI_NOTIFY, (DWORD)&pp);
+		//播放文件，如果第三个参数设为MCI_WAIT则程序窗口会被阻塞，为了避免这种情况可以设为MCI_NOTIFY 
+	}
+}
+void CMy0141124825_houchuanhaoDlg::Stop()
+{
+	MCI_GENERIC_PARMS gp;
+	gp.dwCallback = NULL;
+	mciSendCommand(op.wDeviceID, MCI_CLOSE, MCI_WAIT, (DWORD)&gp);
+}
+CString CMy0141124825_houchuanhaoDlg::getPath()
+{
+	char strModule[256];
+	GetModuleFileName(NULL, strModule, 256); //得到当前模块路径
 
+	CString str = CString(strModule);
+	int l = str.GetLength();
+
+
+	for (int i = l - 1; i > 0; i--)
+	{
+
+		if (str[i] != 92)
+		{
+			str = str.Left(i);
+		}
+		else{
+			break;
+		}
+	}
+
+	return str;
+}
 
 
 
@@ -282,5 +364,13 @@ void CMy0141124825_houchuanhaoDlg::Output_pdf(CString id_number, CString exam_nu
 void CMy0141124825_houchuanhaoDlg::OnBnClickedButton2()
 {
 	Output_pdf("111", "qqq", 12, 12, 12, "12345");
+	// TODO:  在此添加控件通知处理程序代码
+	Stop();
+}
+
+
+void CMy0141124825_houchuanhaoDlg::OnBnClickedButton1()
+{
+	play();
 	// TODO:  在此添加控件通知处理程序代码
 }
