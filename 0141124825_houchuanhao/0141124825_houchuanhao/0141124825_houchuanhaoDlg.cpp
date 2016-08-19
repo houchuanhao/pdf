@@ -42,6 +42,8 @@ public:
 // 实现
 protected:
 	DECLARE_MESSAGE_MAP()
+public:
+	//afx_msg void OnTimer(UINT_PTR nIDEvent);
 };
 
 CAboutDlg::CAboutDlg() : CDialogEx(CAboutDlg::IDD)
@@ -54,6 +56,7 @@ void CAboutDlg::DoDataExchange(CDataExchange* pDX)
 }
 
 BEGIN_MESSAGE_MAP(CAboutDlg, CDialogEx)
+	ON_WM_TIMER()
 END_MESSAGE_MAP()
 
 
@@ -63,14 +66,33 @@ END_MESSAGE_MAP()
 
 CMy0141124825_houchuanhaoDlg::CMy0141124825_houchuanhaoDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(CMy0141124825_houchuanhaoDlg::IDD, pParent)
+	, exid(_T(""))
+	, id(_T(""))
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
+	//---------------------
 	now_iPos = "1";
+	//SetTimer(1, 1000, 0);
+
 }
 
 void CMy0141124825_houchuanhaoDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	//DDX_Control(pDX, IDC_STATIC1, last_time);
+	DDX_Text(pDX, IDC_EDIT1, exid);
+	DDV_MaxChars(pDX, exid, 8);
+	DDX_Text(pDX, IDC_EDIT2, id);
+
+	//----------------
+	CString strTemp;
+	((CComboBox*)GetDlgItem(IDC_COMBO1))->ResetContent();//消除现有所有内容
+	for (int i = 1; i <= total_questions; i++)
+	{
+		strTemp.Format("%d", i);
+		((CComboBox*)GetDlgItem(IDC_COMBO1))->AddString(strTemp);
+	}
+	((CComboBox*)GetDlgItem(IDC_COMBO1))->SetCurSel(0);
 }
 
 BEGIN_MESSAGE_MAP(CMy0141124825_houchuanhaoDlg, CDialogEx)
@@ -79,6 +101,11 @@ BEGIN_MESSAGE_MAP(CMy0141124825_houchuanhaoDlg, CDialogEx)
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDC_BUTTON2, &CMy0141124825_houchuanhaoDlg::OnBnClickedButton2)
 	ON_BN_CLICKED(IDC_BUTTON1, &CMy0141124825_houchuanhaoDlg::OnBnClickedButton1)
+//	ON_WM_TIMER()
+ON_WM_TIMER()
+ON_EN_CHANGE(IDC_EDIT3, &CMy0141124825_houchuanhaoDlg::OnEnChangeEdit3)
+ON_CBN_SELCHANGE(IDC_COMBO1, &CMy0141124825_houchuanhaoDlg::OnCbnSelchangeCombo1)
+ON_CBN_SELCHANGE(IDC_COMBO3, &CMy0141124825_houchuanhaoDlg::OnCbnSelchangeCombo3)
 END_MESSAGE_MAP()
 
 
@@ -334,7 +361,43 @@ CString CMy0141124825_houchuanhaoDlg::getPath()
 
 	return str;
 }
-
+bool CMy0141124825_houchuanhaoDlg::judge(CString exid, CString str)
+{
+	if (exid.GetLength() != 8)
+		return 0;
+	for (int i = 0; i <= 7; i++)
+	{
+		if (exid[i] > '9' || exid[i] < '0')
+			return 0;
+	}
+	if (str.GetLength() != 18)
+		return 0;
+	int sum;
+	char x;
+	CString b = str;
+	if (b.GetLength() != 18)
+		return 0;
+	sum = (b[0] - 48) * 7 + (b[1] - 48) * 9 + (b[2] - 48) * 10 + (b[3] - 48) * 5 + (b[4] - 48) * 8 + (b[5] - 48) * 4 + (b[6] - 48) * 2 + (b[7] - 48) * 1 + (b[8] - 48) * 6 + (b[9] - 48) * 3 + (b[10] - 48) * 7 + (b[11] - 48) * 9 + (b[12] - 48) * 10 + (b[13] - 48) * 5 + (b[14] - 48) * 8 + (b[15] - 48) * 4 + (b[16] - 48) * 2;
+	int p = sum % 11;
+	switch (p)
+	{
+	case 0:x = '1'; break;
+	case 1:x = '0'; break;
+	case 2:x = 'X'; break;
+	case 3:x = '9'; break;
+	case 4:x = '8'; break;
+	case 5:x = '7'; break;
+	case 6:x = '6'; break;
+	case 7:x = '5'; break;
+	case 8:x = '4'; break;
+	case 9:x = '3'; break;
+	case 10:x = '2'; break;
+	}
+	if (x == b[17])
+		return 1;
+	else
+		return 0;
+}
 
 
 
@@ -366,11 +429,102 @@ void CMy0141124825_houchuanhaoDlg::OnBnClickedButton2()
 	Output_pdf("111", "qqq", 12, 12, 12, "12345");
 	// TODO:  在此添加控件通知处理程序代码
 	Stop();
+	KillTimer(1);
 }
 
 
 void CMy0141124825_houchuanhaoDlg::OnBnClickedButton1()
 {
-	play();
+	UpdateData();
+	if (judge(exid, id) == 0)
+	{
+		MessageBox("请填写正确的省份证和准考证号");
+	}
+	else
+	{
+		SetTimer(1, 1000, 0);
+		play();
+	}
+	// TODO:  在此添加控件通知处理程序代码
+}
+
+
+
+
+//void CMy0141124825_houchuanhaoDlg::OnTimer(UINT_PTR nIDEvent)
+//{
+//	// TODO:  在此添加消息处理程序代码和/或调用默认值
+//
+//	// TODO:  在此添加消息处理程序代码和/或调用默认值
+//	int minutes = sumtime / 60;
+//	int secsond = sumtime % 60;
+//	CString str, str1;
+//	str1 = "考试剩余时间： \n";
+//	str.Format("%d", minutes);
+//	str1 = str1 + str + "分";
+//	str.Format("%d", secsond);
+//	str1 = str1 + str + "秒";
+//	GetDlgItem(IDC_STATIC4)->SetWindowText(str1);
+//	if (sumtime == 0)
+//	{
+//		CButton *pBtn = (CButton *)GetDlgItem(IDC_EDIT1);
+//		pBtn->EnableWindow(FALSE);
+//		KillTimer(nIDEvent);
+//		GetDlgItem(IDC_STATIC4)->SetWindowText("时间到!");
+//	}
+//	CDialogEx::OnTimer(nIDEvent);
+//}
+
+
+void CMy0141124825_houchuanhaoDlg::OnStnClickedStatic1()
+{
+	// TODO:  在此添加控件通知处理程序代码
+}
+
+
+void CMy0141124825_houchuanhaoDlg::OnTimer(UINT_PTR nIDEvent)
+{
+	// TODO:  在此添加消息处理程序代码和/或调用默认值
+
+	CDialogEx::OnTimer(nIDEvent);
+	sumtime--;
+	int minutes = sumtime / 60;
+	int secsond = sumtime % 60;
+	CString str, str1;
+	str1 = "考试剩余时间： \n";
+	str.Format("%d", minutes);
+	str1 = str1 + str + "分";
+	str.Format("%d", secsond);
+	str1 = str1 + str + "秒";
+	GetDlgItem(IDC_STATIC4)->SetWindowText(str1);
+	if (sumtime == 0)
+	{
+		CButton *pBtn = (CButton *)GetDlgItem(IDC_EDIT1);
+		pBtn->EnableWindow(FALSE);
+		KillTimer(nIDEvent);
+		GetDlgItem(IDC_STATIC4)->SetWindowText("时间到!");
+	}
+}
+
+
+void CMy0141124825_houchuanhaoDlg::OnEnChangeEdit3()
+{
+	// TODO:  如果该控件是 RICHEDIT 控件，它将不
+	// 发送此通知，除非重写 CDialogEx::OnInitDialog()
+	// 函数并调用 CRichEditCtrl().SetEventMask()，
+	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
+
+	// TODO:  在此添加控件通知处理程序代码
+}
+
+
+void CMy0141124825_houchuanhaoDlg::OnCbnSelchangeCombo1()
+{
+	// TODO:  在此添加控件通知处理程序代码
+}
+
+
+void CMy0141124825_houchuanhaoDlg::OnCbnSelchangeCombo3()
+{
 	// TODO:  在此添加控件通知处理程序代码
 }

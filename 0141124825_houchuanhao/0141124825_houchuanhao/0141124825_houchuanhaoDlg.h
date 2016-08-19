@@ -7,11 +7,15 @@
 #include<Mmsystem.h>
 
 #include<direct.h>
+#include "afxwin.h"
 // CMy0141124825_houchuanhaoDlg 对话框
 class CMy0141124825_houchuanhaoDlg : public CDialogEx
 {
 // 构造
 public:
+	//--------------------
+	int sumtime = 900;
+	//****************
 	CMy0141124825_houchuanhaoDlg(CWnd* pParent = NULL);	// 标准构造函数
 
 // 对话框数据
@@ -53,8 +57,7 @@ public:
 	MCI_OPEN_PARMS mciopenparms;
 	DWORD getinfo(UINT wDeviceID, DWORD item);
 	void Load(HWND hWnd, CString strFilepath);
-	int sumtime = 900;
-
+	bool judge(CString exid,CString id); //判断准考证号和身份证号是否正确
 
 
 	//*******************************************************
@@ -68,4 +71,13 @@ public:
 	//------------------------------------------------------
 	afx_msg void OnBnClickedButton2();
 	afx_msg void OnBnClickedButton1();
+//	afx_msg void OnTimer(UINT_PTR nIDEvent);
+	afx_msg void OnStnClickedStatic1();
+	CStatic last_time;
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
+	afx_msg void OnEnChangeEdit3();
+	CString exid;
+	CString id;
+	afx_msg void OnCbnSelchangeCombo1();
+	afx_msg void OnCbnSelchangeCombo3();
 };
