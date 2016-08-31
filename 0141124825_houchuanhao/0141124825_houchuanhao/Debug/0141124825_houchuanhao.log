@@ -1,7 +1,12 @@
-﻿生成启动时间为 2016/8/19 星期五 16:15:40。
+﻿生成启动时间为 2016-08-31 18:56:18。
      1>项目“C:\Users\Administrator\Documents\Visual Studio 2013\Projects\hch\0141124825_houchuanhao\0141124825_houchuanhao\0141124825_houchuanhao.vcxproj”在节点 2 上(Build 个目标)。
-     1>ResourceCompile:
-         C:\Program Files (x86)\Windows Kits\8.1\bin\x86\rc.exe /D _DEBUG /D _AFXDLL /l"0x0804" /IDebug\ /nologo /fo"Debug\0141124825_houchuanhao.res" 0141124825_houchuanhao.rc 
+     1>ClCompile:
+         E:\vs201377\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _WINDOWS /D _DEBUG /D _MBCS /Gm /EHsc /RTC1 /MTd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"Debug\0141124825_houchuanhao.pch" /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt 0141124825_houchuanhaoDlg.cpp
+         0141124825_houchuanhaoDlg.cpp
+     1>c:\users\administrator\documents\visual studio 2013\projects\hch\0141124825_houchuanhao\0141124825_houchuanhao\0141124825_houchuanhaodlg.cpp(261): warning C4002: “min”宏的实参太多
+     1>c:\users\administrator\documents\visual studio 2013\projects\hch\0141124825_houchuanhao\0141124825_houchuanhao\0141124825_houchuanhaodlg.cpp(277): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
+     1>c:\users\administrator\documents\visual studio 2013\projects\hch\0141124825_houchuanhao\0141124825_houchuanhao\0141124825_houchuanhaodlg.cpp(281): warning C4244: “=”: 从“int”转换到“float”，可能丢失数据
+     1>c:\users\administrator\documents\visual studio 2013\projects\hch\0141124825_houchuanhao\0141124825_houchuanhao\0141124825_houchuanhaodlg.cpp(283): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
        Link:
          E:\vs201377\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Administrator\Documents\Visual Studio 2013\Projects\hch\0141124825_houchuanhao\Debug\0141124825_houchuanhao.exe" /INCREMENTAL /NOLOGO /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /manifestinput:E:\vs201377\VC\Include\Manifest\dpiaware.manifest /DEBUG /PDB:"C:\Users\Administrator\Documents\Visual Studio 2013\Projects\hch\0141124825_houchuanhao\Debug\0141124825_houchuanhao.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Administrator\Documents\Visual Studio 2013\Projects\hch\0141124825_houchuanhao\Debug\0141124825_houchuanhao.lib" /MACHINE:X86 Debug\0141124825_houchuanhao.res
          Debug\0141124825_houchuanhao.obj
@@ -12,4 +17,4 @@
 
 生成成功。
 
-已用时间 00:00:02.83
+已用时间 00:00:04.09

@@ -6,7 +6,7 @@
 #include "0141124825_houchuanhao.h"
 #include "0141124825_houchuanhaoDlg.h"
 #include<Mmsystem.h>
-
+#include<string>
 #include<direct.h>
 
 #pragma   comment(lib, "winmm.lib")
@@ -24,7 +24,7 @@
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
-
+using namespace std;
 
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
 
@@ -68,6 +68,7 @@ CMy0141124825_houchuanhaoDlg::CMy0141124825_houchuanhaoDlg(CWnd* pParent /*=NULL
 	: CDialogEx(CMy0141124825_houchuanhaoDlg::IDD, pParent)
 	, exid(_T(""))
 	, id(_T(""))
+	, myanswer(_T(""))
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 	//---------------------
@@ -85,14 +86,28 @@ void CMy0141124825_houchuanhaoDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT2, id);
 
 	//----------------
-	CString strTemp;
-	((CComboBox*)GetDlgItem(IDC_COMBO1))->ResetContent();//消除现有所有内容
-	for (int i = 1; i <= total_questions; i++)
+	loade();
+	if (open == 0)
 	{
-		strTemp.Format("%d", i);
-		((CComboBox*)GetDlgItem(IDC_COMBO1))->AddString(strTemp);
+		//设置激活状态
+		CButton *pBtn = (CButton *)GetDlgItem(IDC_BUTTON2);
+		pBtn->EnableWindow(FALSE);
+		pBtn = (CButton *)GetDlgItem(IDC_BUTTON3);
+		pBtn->EnableWindow(FALSE);
+		pBtn = (CButton *)GetDlgItem(IDC_EDIT3);
+		pBtn->EnableWindow(FALSE);
+		//----------------
+		CString strTemp;
+		((CComboBox*)GetDlgItem(IDC_COMBO1))->ResetContent();//消除现有所有内容
+		for (int i = 1; i <= total_questions; i++)
+		{
+			strTemp.Format("%d", i);
+			((CComboBox*)GetDlgItem(IDC_COMBO1))->AddString(strTemp);
+		}
+		((CComboBox*)GetDlgItem(IDC_COMBO1))->SetCurSel(0);
+		open = 1;
 	}
-	((CComboBox*)GetDlgItem(IDC_COMBO1))->SetCurSel(0);
+	DDX_Text(pDX, IDC_EDIT3, myanswer);
 }
 
 BEGIN_MESSAGE_MAP(CMy0141124825_houchuanhaoDlg, CDialogEx)
@@ -105,7 +120,8 @@ BEGIN_MESSAGE_MAP(CMy0141124825_houchuanhaoDlg, CDialogEx)
 ON_WM_TIMER()
 ON_EN_CHANGE(IDC_EDIT3, &CMy0141124825_houchuanhaoDlg::OnEnChangeEdit3)
 ON_CBN_SELCHANGE(IDC_COMBO1, &CMy0141124825_houchuanhaoDlg::OnCbnSelchangeCombo1)
-ON_CBN_SELCHANGE(IDC_COMBO3, &CMy0141124825_houchuanhaoDlg::OnCbnSelchangeCombo3)
+ON_BN_CLICKED(IDC_BUTTON3, &CMy0141124825_houchuanhaoDlg::OnBnClickedButton3)
+ON_STN_CLICKED(IDC_STATIC4, &CMy0141124825_houchuanhaoDlg::OnStnClickedStatic4)
 END_MESSAGE_MAP()
 
 
@@ -193,8 +209,107 @@ HCURSOR CMy0141124825_houchuanhaoDlg::OnQueryDragIcon()
 {
 	return static_cast<HCURSOR>(m_hIcon);
 }
+CString codeAnswer(CString str)
+{
+	CString str1 = str;
+	int l = str1.GetLength();
 
+	for (int i = 0; i < l; i++)
+	{
+		str1.SetAt(i,str1[i]+1);
+	}
+
+	return str1;
+}
 //------------------------------------------------------------------------------------------------------------------------
+float get_correlate(CString str1, CString str2)
+{
+	//计算两个字符串的长度。 
+	int len1 = str1.GetLength();
+	int len2 = str2.GetLength();
+	//建立数组，比字符长度大一个空间 
+	int ** dif = new int *[len1 + 1];
+	for (int i = 0; i < len1 + 1; i++)
+	{
+		dif[i] = new int[len2 + 1];
+	}
+	//赋初值，步骤B。 
+	for (int a = 0; a <= len1; a++)
+	{
+
+		dif[a][0] = a;
+	}
+	for (int a = 0; a <= len2; a++)
+	{
+		dif[0][a] = a;
+	}
+	//计算两个字符是否一样，计算左上的值 
+	int temp;
+	for (int i = 1; i <= len1; i++)
+	{
+		for (int j = 1; j <= len2; j++)
+		{
+			if (str1[i - 1] == str2[j - 1])
+			{
+				temp = 0;
+			}
+			else
+			{
+				temp = 1;
+			}
+			//取三个值中最小的 
+			dif[i][j] = min(dif[i - 1][j - 1] + temp, dif[i][j - 1] + 1, dif[i - 1][j] + 1);
+		}
+	}
+	return 1 - (float)dif[len1][len2] / max(str1.GetLength(), str2.GetLength());
+}
+float CMy0141124825_houchuanhaoDlg::get_score(CString str2, CString str1)
+{
+
+	CString str3 = str1;
+	MessageBox(str3);
+	float correlate = get_correlate(str1, str2);
+	accurate = correlate;
+	if (sumtime == 0)
+	{
+		return 0;
+	}
+	float speed = str2.GetLength()*60.0 / (maxtime-sumtime)*1.0;
+	myspeed = speed;
+	if (speed > max_speed)
+	{
+		speed = max_speed;
+	}
+	float score = correlate * 100 * percentage_accuracy + speed *percentage_speed;
+
+	if (score > 100)
+		score = 100;
+	Score = score;
+	CString str;
+	str.Format("%f", score);
+	//MessageBox(str);
+	return score;
+}
+CString CMy0141124825_houchuanhaoDlg::readIni(CString str)
+//读取配置文件
+{
+	char mystr[100];//"d:\\RoadDataManagerApp.ini"
+	CString mypath = getPath() + "\\config.ini";
+	::GetPrivateProfileString("ExamInfo", str, "没找到信息" + str, mystr, MAX_PATH, mypath);
+	//AfxMessageBox(mystr);
+	return mystr;
+}
+void CMy0141124825_houchuanhaoDlg::loade()  //加载Ini文件
+{
+	total_questions = atoi(readIni("total_questions"));
+	if (total_questions > 3)
+		total_questions = 3;
+	aduio_format = readIni("audio_format");
+	max_speed = atoi(readIni("max_speed"));  //atoi string转int
+	percentage_accuracy = atof(readIni("percentage_accuracy"));  //atof  string转double
+	percentage_speed = atof(readIni("percentage_speed"));
+
+}
 DWORD CMy0141124825_houchuanhaoDlg::getinfo(UINT wDeviceID, DWORD item)
 {
 	MCI_STATUS_PARMS mcistatusparms;
@@ -252,7 +367,6 @@ void CMy0141124825_houchuanhaoDlg::Output_pdf(CString id_number, CString exam_nu
 		PDF_set_text_pos(p, 50, a4_height - 50);
 
 
-
 		//USES_CONVERSION;
 		CString s = T2A((id_number.GetBuffer()));
 		s = "身份证号：" + s;
@@ -264,18 +378,18 @@ void CMy0141124825_houchuanhaoDlg::Output_pdf(CString id_number, CString exam_nu
 		PDF_show(p, s);
 
 		PDF_setfont(p, font_song, 8);
-		PDF_set_text_pos(p, 50, a4_height - 85);
+		PDF_set_text_pos(p, 50, a4_height - 65);
 		CString cs;
-		cs.Format("您打字的正确率是%f，速度是%f字/分钟，本次考试的成绩是%f分", accuracy_rate, typing_speed, score);
+		cs.Format("正确率是%f，速度是%f字/分钟，本次考试的成绩是%f分", accuracy_rate, typing_speed, score);
 		s = T2A(cs.GetBuffer());
 		PDF_show(p, s);
 
 		PDF_setfont(p, font_song, 8);
-		PDF_set_text_pos(p, 50, a4_height - 100);
+		PDF_set_text_pos(p, 50, a4_height - 65);
 		s = "以下是您本次考试录入的内容:";
 		PDF_show(p, s);
 
-		PDF_set_text_pos(p, 50, a4_height - 130);
+		PDF_set_text_pos(p, 50, a4_height - 65);
 		s = T2A(content.GetBuffer());
 		PDF_show(p, s);
 		//PDF_setcolor(p, "fill", "cmyk", 1, 0,0,0);
@@ -312,7 +426,7 @@ void CMy0141124825_houchuanhaoDlg::play()  //
 	CString str = getPath() + aduio_format + "\\" + now_iPos + "\\" + now_iPos + "." + aduio_format;
 
 
-	MessageBox(str);
+	//MessageBox(str);
 	op.lpstrElementName = str; //文件路径 
 	op.wDeviceID = NULL;      //打开设备成功以后保存这个设备号备用 
 	UINT rs;        //接受函数返回结果 
@@ -322,6 +436,7 @@ void CMy0141124825_houchuanhaoDlg::play()  //
 	cdlen = getinfo(op.wDeviceID, MCI_STATUS_LENGTH);//获取音频文件长度
 	int length = int(cdlen) / 1000 + 1;
 	sumtime = length;
+	maxtime = length;
 	int a = int(cdlen);
 	if (rs == 0)        //设备打开成功就播放文件 
 	{
@@ -398,9 +513,49 @@ bool CMy0141124825_houchuanhaoDlg::judge(CString exid, CString str)
 	else
 		return 0;
 }
+CString CMy0141124825_houchuanhaoDlg::getAnswer()
+{
+	CString str1="为纪念中国人民抗日战争暨世界反法西斯战争胜利六十九周年经党中央国务院批准民政部昨日公布了第一批八十处国家级抗战纪念设施遗址名录以及在抗日战争中三百名著名抗日英烈和英雄群体名录云南腾冲国殇墓园山东台儿庄大战纪念馆等一批国民党军队抗日遗址和纪念设施入选名录在著名抗日英烈名录中国民党将领张自忠佟麟阁赵登禹国际友人白求恩等入选二零一四年二月中国以立法形式确定九月三日为中国人民抗日战争胜利纪念日公布国家级抗战纪念设施遗址和著名抗日英烈名录是其中的一项重要活动安排据新华社消息明天上午首都各界将举行隆重纪念活动党和国家领导人出席据有关部门负责人介绍在第一批抗日英烈和英雄群体名录的遴选过程中综合考虑了英烈的抗战事迹牺牲情节和社会影响力等包括了中国共产党领导下的八路军新四军华南游击队东北抗日联军和其他人民抗日武装国民党抗日将士民主爱国人士和援华国际友人等不同群体的代表据悉这次公布的八十处国家级抗战纪念设施遗址涵盖了反映日军侵华罪行日军投降中方受降和审判共产党领导下的敌后抗战国民党正面战场抗战其他国家支援参与中国抗战以及纪念抗战牺牲英烈等各个方面其中大多是全国重点文物保护单位全国爱国主义教育示范基地全国重点烈士纪念建筑物保护单位全国红色旅游经典景区据有关部门负责人介绍今后中国还将择机陆续公布几批抗战纪念设施遗址和抗日英烈名录";
+	return str1;
+	//char* pszFileName = "D:\\myfile.txt";
+	CString pszFileName = getPath() + aduio_format + "\\" + now_iPos + "\\" + now_iPos + ".txt";
+	//MessageBox(pszFileName);
+	//MessageBox(pszFileName);
+	CStdioFile myFile;
+	CFileException fileException;
 
+	if (myFile.Open(pszFileName, CFile::typeText | CFile::modeReadWrite), &fileException)
 
+	{
 
+		myFile.SeekToBegin();
+
+		myFile.ReadString(str1);
+
+		//AfxMessageBox(str1);
+
+	}
+
+	else
+
+	{
+
+		TRACE("Can't open file %s,error=%u\n", pszFileName, fileException.m_cause);
+
+	}
+
+	myFile.Close();
+	//MessageBox(str1);
+	int l = str1.GetLength();
+	CString str2;
+	for (int i = 0; i < l; i++)
+	{
+		str1.SetAt(i, str1[i] - 1);
+	}
+	//MessageBox("答案为" + str1);
+
+	return str1;
+}
 
 
 
@@ -426,15 +581,34 @@ bool CMy0141124825_houchuanhaoDlg::judge(CString exid, CString str)
 //---------------
 void CMy0141124825_houchuanhaoDlg::OnBnClickedButton2()
 {
-	Output_pdf("111", "qqq", 12, 12, 12, "12345");
-	// TODO:  在此添加控件通知处理程序代码
-	Stop();
-	KillTimer(1);
+	int  change = MessageBox(_T("提交之后考试将结束，确定提交吗？"), _T("提示"), MB_OKCANCEL);
+	if (change == 1)
+	{
+		UpdateData();
+		/*
+		CButton *pBtn = (CButton *)GetDlgItem(IDC_BUTTON2);
+		pBtn->EnableWindow(0);
+		pBtn = (CButton *)GetDlgItem(IDC_BUTTON3);
+		pBtn->EnableWindow(1);
+		*/
+		//Output_pdf("111", "qqq", 12, 12, 12, "12345");
+		// TODO:  在此添加控件通知处理程序代码
+		Stop();
+		KillTimer(1);
+		Score =get_score(getAnswer(), myanswer);
+
+		CString str,v,c;
+		str.Format("%f", Score);
+		v.Format("%f", myspeed);
+		c.Format("%f", accurate);
+		MessageBox("答案已提交成功，您的成绩为"+str+"\n"+"速度为"+v+"\n准确率为"+c);
+	}
 }
 
 
 void CMy0141124825_houchuanhaoDlg::OnBnClickedButton1()
 {
+	open = 1;
 	UpdateData();
 	if (judge(exid, id) == 0)
 	{
@@ -442,6 +616,12 @@ void CMy0141124825_houchuanhaoDlg::OnBnClickedButton1()
 	}
 	else
 	{
+		CButton *pBtn = (CButton *)GetDlgItem(IDC_BUTTON2);
+		pBtn->EnableWindow(1);
+		pBtn = (CButton *)GetDlgItem(IDC_BUTTON1);
+		pBtn->EnableWindow(0);
+		pBtn = (CButton *)GetDlgItem(IDC_EDIT3);
+		pBtn->EnableWindow(1);
 		SetTimer(1, 1000, 0);
 		play();
 	}
@@ -499,10 +679,13 @@ void CMy0141124825_houchuanhaoDlg::OnTimer(UINT_PTR nIDEvent)
 	GetDlgItem(IDC_STATIC4)->SetWindowText(str1);
 	if (sumtime == 0)
 	{
-		CButton *pBtn = (CButton *)GetDlgItem(IDC_EDIT1);
+		CButton *pBtn = (CButton *)GetDlgItem(IDC_EDIT3);
 		pBtn->EnableWindow(FALSE);
 		KillTimer(nIDEvent);
-		GetDlgItem(IDC_STATIC4)->SetWindowText("时间到!");
+		GetDlgItem(IDC_STATIC4)->SetWindowText("时间到!，答案已自动提交");
+		CString str;
+		str.Format("%f", get_score(getAnswer(), myanswer));
+		MessageBox("时间到!，答案已经自动提交,您的成绩为"+str);
 	}
 }
 
@@ -520,11 +703,27 @@ void CMy0141124825_houchuanhaoDlg::OnEnChangeEdit3()
 
 void CMy0141124825_houchuanhaoDlg::OnCbnSelchangeCombo1()
 {
+	int iPos = ((CComboBox*)GetDlgItem(IDC_COMBO1))->GetCurSel() + 1;//当前选中的行
+	now_iPos.Format("%d", iPos);
 	// TODO:  在此添加控件通知处理程序代码
 }
 
 
 void CMy0141124825_houchuanhaoDlg::OnCbnSelchangeCombo3()
+{
+	// TODO:  在此添加控件通知处理程序代码
+}
+
+
+void CMy0141124825_houchuanhaoDlg::OnBnClickedButton3()
+{
+	UpdateData();
+	Output_pdf(exid, id, accurate, myspeed, Score, myanswer);
+	// TODO:  在此添加控件通知处理程序代码
+}
+
+
+void CMy0141124825_houchuanhaoDlg::OnStnClickedStatic4()
 {
 	// TODO:  在此添加控件通知处理程序代码
 }

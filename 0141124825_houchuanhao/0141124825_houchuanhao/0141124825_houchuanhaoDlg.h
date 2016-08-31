@@ -36,7 +36,12 @@ protected:
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
 public:
+	int maxtime;
+	float accurate;
+	float myspeed;
+	float Score;
 	CString getPath();
+	CString readIni(CString str);
 	float get_score(CString str1, CString str2);
 	CString getAnswer();
 	bool open = 0;
@@ -59,7 +64,6 @@ public:
 	void Load(HWND hWnd, CString strFilepath);
 	bool judge(CString exid,CString id); //判断准考证号和身份证号是否正确
 
-
 	//*******************************************************
 	void Output_pdf(CString id_number, CString exam_number, double accuracy_rate, double typing_speed, double score, CString content);
 	//CString getPath(); //获取路径
@@ -80,4 +84,7 @@ public:
 	CString id;
 	afx_msg void OnCbnSelchangeCombo1();
 	afx_msg void OnCbnSelchangeCombo3();
+	CString myanswer;
+	afx_msg void OnBnClickedButton3();
+	afx_msg void OnStnClickedStatic4();
 };
