@@ -84,7 +84,8 @@ public:
 	CString id;
 	afx_msg void OnCbnSelchangeCombo1();
 	afx_msg void OnCbnSelchangeCombo3();
-	CString myanswer;
+//	CString myanswer;
 	afx_msg void OnBnClickedButton3();
 	afx_msg void OnStnClickedStatic4();
+	CString myanswer;
 };

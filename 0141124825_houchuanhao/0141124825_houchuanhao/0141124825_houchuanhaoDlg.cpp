@@ -107,6 +107,9 @@ void CMy0141124825_houchuanhaoDlg::DoDataExchange(CDataExchange* pDX)
 		((CComboBox*)GetDlgItem(IDC_COMBO1))->SetCurSel(0);
 		open = 1;
 	}
+	//  DDX_Text(pDX, IDC_EDIT3, myanswer);
+	//  DDV_MaxChars(pDX, myanswer, 4000);
+	DDV_MaxChars(pDX, id, 18);
 	DDX_Text(pDX, IDC_EDIT3, myanswer);
 }
 
@@ -160,7 +163,30 @@ BOOL CMy0141124825_houchuanhaoDlg::OnInitDialog()
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
-
+string clean(string  str) //去除中文标点
+{
+	size_t n = 0;
+	size_t count = 0;
+	unsigned char c1, c2;
+	setlocale(LC_ALL, "");
+	while (n<str.size() - 1)
+	{
+		count = mblen(&str[n], 2);
+		if (count == 1)
+			str.erase(n, 1);
+		else
+		{
+			c1 = (unsigned char)str[n];
+			c2 = (unsigned char)str[n + 1];
+			if (((c1 >= 0xa1 && c1 <= 0xa9) && (c2 >= 0xa1 && c2 <= 0xfe)) ||
+				((c1 >= 0xa8 && c1 <= 0xa9) && (c2 >= 0x40 && c2 <= 0xa0)))
+				str.erase(n, 2);
+			else
+				n++;
+		}
+	}
+	return str;
+}
 void CMy0141124825_houchuanhaoDlg::OnSysCommand(UINT nID, LPARAM lParam)
 {
 	if ((nID & 0xFFF0) == IDM_ABOUTBOX)
@@ -267,7 +293,7 @@ float CMy0141124825_houchuanhaoDlg::get_score(CString str2, CString str1)
 {
 
 	CString str3 = str1;
-	MessageBox(str3);
+	//MessageBox(str3);
 	float correlate = get_correlate(str1, str2);
 	accurate = correlate;
 	if (sumtime == 0)
@@ -299,11 +325,12 @@ CString CMy0141124825_houchuanhaoDlg::readIni(CString str)
 	//AfxMessageBox(mystr);
 	return mystr;
 }
+
 void CMy0141124825_houchuanhaoDlg::loade()  //加载Ini文件
 {
 	total_questions = atoi(readIni("total_questions"));
-	if (total_questions > 3)
-		total_questions = 3;
+	if (total_questions > 5)
+		total_questions = 5;
 	aduio_format = readIni("audio_format");
 	max_speed = atoi(readIni("max_speed"));  //atoi string转int
 	percentage_accuracy = atof(readIni("percentage_accuracy"));  //atof  string转double
@@ -338,11 +365,11 @@ void CMy0141124825_houchuanhaoDlg::Output_pdf(CString id_number, CString exam_nu
 		USES_CONVERSION;
 		PDF_set_parameter(p, "license", "X600605-009100-4E7661-329E0C");//去除水印。将注册号写入。
 
-		CString str(exam_number);
-		CString str2 = "_成绩单.pdf";
+		string str(exam_number);
+		string str2 = "_成绩单.pdf";
 
-		CString str1 = str + str2;
-		const char *FileName = str1;
+		string str1 = str + str2;
+		const char *FileName = str1.c_str();
 		if (PDF_begin_document(p, FileName, 0, "") == -1) {
 			printf("Error: %s/n", PDF_get_errmsg(p));
 			return;
@@ -367,34 +394,49 @@ void CMy0141124825_houchuanhaoDlg::Output_pdf(CString id_number, CString exam_nu
 		PDF_set_text_pos(p, 50, a4_height - 50);
 
 
+
 		//USES_CONVERSION;
-		CString s = T2A((id_number.GetBuffer()));
+		string s = T2A((id_number.GetBuffer()));
 		s = "身份证号：" + s;
-		PDF_show(p, s);
+		PDF_show(p, s.c_str());
 
 		PDF_set_text_pos(p, 50, a4_height - 65);
 		s = T2A((exam_number.GetBuffer()));
 		s = "准考证号：" + s;
-		PDF_show(p, s);
+		PDF_show(p, s.c_str());
 
 		PDF_setfont(p, font_song, 8);
-		PDF_set_text_pos(p, 50, a4_height - 65);
+		PDF_set_text_pos(p, 50, a4_height - 85);
 		CString cs;
-		cs.Format("正确率是%f，速度是%f字/分钟，本次考试的成绩是%f分", accuracy_rate, typing_speed, score);
+		cs.Format("您打字的正确率是%f，速度是%f字/分钟，本次考试的成绩是%f分", accuracy_rate, typing_speed, score);
+		
 		s = T2A(cs.GetBuffer());
-		PDF_show(p, s);
+		PDF_show(p, s.c_str());
 
 		PDF_setfont(p, font_song, 8);
-		PDF_set_text_pos(p, 50, a4_height - 65);
-		s = "以下是您本次考试录入的内容:";
-		PDF_show(p, s);
+		PDF_set_text_pos(p, 50, a4_height - 100);
 
-		PDF_set_text_pos(p, 50, a4_height - 65);
-		s = T2A(content.GetBuffer());
-		PDF_show(p, s);
-		//PDF_setcolor(p, "fill", "cmyk", 1, 0,0,0);
-		//PDF_rect(p, 250,250, 250, 250);
-		//PDF_fill(p);
+		s = "以下是您本次考试录入                                                                                                             ";
+		PDF_show(p, s.c_str());
+		int n = 80;
+		string ans = T2A(content.GetBuffer());
+		int i = 0;
+		while (ans.length()-n*i > n)
+		{
+			for (int j = i * n; j <= i * n + n; j++)
+			{
+				s[j-i*n] = ans[j];
+			}
+			i++;
+			PDF_set_text_pos(p, 50, a4_height - 130-20*i);
+			//s = T2A(content.GetBuffer());
+			PDF_show(p, s.c_str());
+
+		}
+		s = ans.substr(i * n, ans.length());
+		PDF_set_text_pos(p, 50, a4_height - 130-20*i-20);
+		//s = T2A(content.GetBuffer());
+		PDF_show(p, s.c_str());
 
 		PDF_end_page_ext(p, "");
 		PDF_end_document(p, "");
@@ -413,6 +455,9 @@ void CMy0141124825_houchuanhaoDlg::Output_pdf(CString id_number, CString exam_nu
 	}
 	PDF_delete(p);
 	return;
+
+	
+
 }
 void CMy0141124825_houchuanhaoDlg::play()  //
 {
@@ -515,8 +560,12 @@ bool CMy0141124825_houchuanhaoDlg::judge(CString exid, CString str)
 }
 CString CMy0141124825_houchuanhaoDlg::getAnswer()
 {
-	CString str1="为纪念中国人民抗日战争暨世界反法西斯战争胜利六十九周年经党中央国务院批准民政部昨日公布了第一批八十处国家级抗战纪念设施遗址名录以及在抗日战争中三百名著名抗日英烈和英雄群体名录云南腾冲国殇墓园山东台儿庄大战纪念馆等一批国民党军队抗日遗址和纪念设施入选名录在著名抗日英烈名录中国民党将领张自忠佟麟阁赵登禹国际友人白求恩等入选二零一四年二月中国以立法形式确定九月三日为中国人民抗日战争胜利纪念日公布国家级抗战纪念设施遗址和著名抗日英烈名录是其中的一项重要活动安排据新华社消息明天上午首都各界将举行隆重纪念活动党和国家领导人出席据有关部门负责人介绍在第一批抗日英烈和英雄群体名录的遴选过程中综合考虑了英烈的抗战事迹牺牲情节和社会影响力等包括了中国共产党领导下的八路军新四军华南游击队东北抗日联军和其他人民抗日武装国民党抗日将士民主爱国人士和援华国际友人等不同群体的代表据悉这次公布的八十处国家级抗战纪念设施遗址涵盖了反映日军侵华罪行日军投降中方受降和审判共产党领导下的敌后抗战国民党正面战场抗战其他国家支援参与中国抗战以及纪念抗战牺牲英烈等各个方面其中大多是全国重点文物保护单位全国爱国主义教育示范基地全国重点烈士纪念建筑物保护单位全国红色旅游经典景区据有关部门负责人介绍今后中国还将择机陆续公布几批抗战纪念设施遗址和抗日英烈名录";
-	return str1;
+	CString str1;
+	if (now_iPos =="1")
+	{
+		str1 = "为纪念中国人民抗日战争暨世界反法西斯战争胜利六十九周年经党中央国务院批准民政部昨日公布了第一批八十处国家级抗战纪念设施遗址名录以及在抗日战争中三百名著名抗日英烈和英雄群体名录云南腾冲国殇墓园山东台儿庄大战纪念馆等一批国民党军队抗日遗址和纪念设施入选名录在著名抗日英烈名录中国民党将领张自忠佟麟阁赵登禹国际友人白求恩等入选二零一四年二月中国以立法形式确定九月三日为中国人民抗日战争胜利纪念日公布国家级抗战纪念设施遗址和著名抗日英烈名录是其中的一项重要活动安排据新华社消息明天上午首都各界将举行隆重纪念活动党和国家领导人出席据有关部门负责人介绍在第一批抗日英烈和英雄群体名录的遴选过程中综合考虑了英烈的抗战事迹牺牲情节和社会影响力等包括了中国共产党领导下的八路军新四军华南游击队东北抗日联军和其他人民抗日武装国民党抗日将士民主爱国人士和援华国际友人等不同群体的代表据悉这次公布的八十处国家级抗战纪念设施遗址涵盖了反映日军侵华罪行日军投降中方受降和审判共产党领导下的敌后抗战国民党正面战场抗战其他国家支援参与中国抗战以及纪念抗战牺牲英烈等各个方面其中大多是全国重点文物保护单位全国爱国主义教育示范基地全国重点烈士纪念建筑物保护单位全国红色旅游经典景区据有关部门负责人介绍今后中国还将择机陆续公布几批抗战纪念设施遗址和抗日英烈名录";
+		return str1;
+	}
 	//char* pszFileName = "D:\\myfile.txt";
 	CString pszFileName = getPath() + aduio_format + "\\" + now_iPos + "\\" + now_iPos + ".txt";
 	//MessageBox(pszFileName);
@@ -581,16 +630,25 @@ CString CMy0141124825_houchuanhaoDlg::getAnswer()
 //---------------
 void CMy0141124825_houchuanhaoDlg::OnBnClickedButton2()
 {
+
 	int  change = MessageBox(_T("提交之后考试将结束，确定提交吗？"), _T("提示"), MB_OKCANCEL);
 	if (change == 1)
 	{
 		UpdateData();
-		/*
+		//UpdateData();
+		myanswer.Replace("，", ",");
+		myanswer.Replace("、", ",");
+		myanswer.Replace("。", ",");
+		myanswer.Replace("！", ",");
+		myanswer.Replace("{", ",");
+		myanswer.Replace("}", ",");
+		myanswer.Replace("；", ",");
+		myanswer.Replace("‘", ",");
+		myanswer.Remove(',');
 		CButton *pBtn = (CButton *)GetDlgItem(IDC_BUTTON2);
 		pBtn->EnableWindow(0);
 		pBtn = (CButton *)GetDlgItem(IDC_BUTTON3);
 		pBtn->EnableWindow(1);
-		*/
 		//Output_pdf("111", "qqq", 12, 12, 12, "12345");
 		// TODO:  在此添加控件通知处理程序代码
 		Stop();
@@ -602,12 +660,14 @@ void CMy0141124825_houchuanhaoDlg::OnBnClickedButton2()
 		v.Format("%f", myspeed);
 		c.Format("%f", accurate);
 		MessageBox("答案已提交成功，您的成绩为"+str+"\n"+"速度为"+v+"\n准确率为"+c);
+		Output_pdf(exid, id, accurate, myspeed, Score, myanswer);
 	}
 }
 
 
 void CMy0141124825_houchuanhaoDlg::OnBnClickedButton1()
 {
+
 	open = 1;
 	UpdateData();
 	if (judge(exid, id) == 0)
@@ -622,6 +682,12 @@ void CMy0141124825_houchuanhaoDlg::OnBnClickedButton1()
 		pBtn->EnableWindow(0);
 		pBtn = (CButton *)GetDlgItem(IDC_EDIT3);
 		pBtn->EnableWindow(1);
+		pBtn = (CButton *)GetDlgItem(IDC_EDIT1);
+		pBtn->EnableWindow(0);
+		pBtn = (CButton *)GetDlgItem(IDC_EDIT2);
+		pBtn->EnableWindow(0);
+		pBtn = (CButton *)GetDlgItem(IDC_COMBO1);
+		pBtn->EnableWindow(0);
 		SetTimer(1, 1000, 0);
 		play();
 	}
@@ -717,8 +783,62 @@ void CMy0141124825_houchuanhaoDlg::OnCbnSelchangeCombo3()
 
 void CMy0141124825_houchuanhaoDlg::OnBnClickedButton3()
 {
-	UpdateData();
-	Output_pdf(exid, id, accurate, myspeed, Score, myanswer);
+	CString m_Show1;
+	CString str = id + "_成绩单.pdf";
+	ShellExecute(NULL, _T("open"), str, NULL, NULL, SW_SHOWMAXIMIZED);
+	/*
+	PDF *p = PDF_new();
+	PDF_set_parameter(p, "license", "X600605-009100-4E7661-329E0C");//去除水印。将注册号写入。
+	int font;
+	CString fileName = "./成绩单.pdf";//f文件的名字，以及路径
+	PDF_begin_document(p, fileName, 0, "");
+
+	PDF_set_info(p, "Creator", "测试人员");
+	PDF_set_info(p, "Author", "TestPDF");
+	PDF_set_info(p, "Title", "成绩单");
+	PDF_begin_page_ext(p, a4_width, a4_height, "");
+	font = PDF_load_font(p, "STSong-Light", 0, "GB-EUC-H", "");
+	PDF_setfont(p, font, 12);
+	PDF_set_text_pos(p, 50, 700);
+
+	CString snum, sID, sc, st, fuhao;
+	fuhao = "%";
+	snum = "准考证号：" + id;
+	sID = "身份证号：" + exid;
+	sc.Format(_T("准确率是：%.2f%s,速度是:%.2f个字/分钟,本次考试的成绩是%.2f"), accurate, fuhao, myspeed, myanswer);
+	st = "以下是您本次考试录入的内容：";
+	PDF_show(p, snum);
+	PDF_continue_text(p, sID);
+	PDF_continue_text(p, sc);
+	PDF_continue_text(p, st);
+	int m = m_Show1.GetLength();
+	int k, j = 0, l = 650;
+	CString bb2, bb3 = "", bb4;
+	for (k = 0; k<m;)
+	{
+		char unicode = m_Show1.GetAt(k);
+		if (unicode >= '!'&&unicode <= '~')
+		{
+			bb3 += m_Show1.GetAt(k);
+			k++;
+		}
+		else
+		{
+			bb3 += m_Show1.Mid(k, 2);//每次读进一个汉字
+			k = k + 2;
+		}
+		PDF_set_text_pos(p, 50, l);//在PDF中显示的位置
+		PDF_show(p, (_bstr_t)bb3);//显示
+		int o = bb3.GetLength();//读出长度
+		if (o>70) //大于70换行重新输入
+		{
+			l -= 20; bb3.Empty();
+		}
+	}
+	PDF_end_page_ext(p, "");
+	PDF_end_document(p, "");
+	PDF_delete(p);
+	*/
 	// TODO:  在此添加控件通知处理程序代码
 }
 

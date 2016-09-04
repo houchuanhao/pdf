@@ -1,14 +1,23 @@
-﻿生成启动时间为 2016-08-31 18:56:18。
+﻿生成启动时间为 2016-09-01 12:10:50。
      1>项目“C:\Users\Administrator\Documents\Visual Studio 2013\Projects\hch\0141124825_houchuanhao\0141124825_houchuanhao\0141124825_houchuanhao.vcxproj”在节点 2 上(Build 个目标)。
      1>ClCompile:
-         E:\vs201377\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _WINDOWS /D _DEBUG /D _MBCS /Gm /EHsc /RTC1 /MTd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"Debug\0141124825_houchuanhao.pch" /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt 0141124825_houchuanhaoDlg.cpp
+         E:\vs201377\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _WINDOWS /D _DEBUG /D _USING_V110_SDK71_ /D _MBCS /Gm /EHsc /RTC1 /MTd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yc"stdafx.h" /Fp"Debug\0141124825_houchuanhao.pch" /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt stdafx.cpp
+         stdafx.cpp
+     1>e:\vs201377\vc\atlmfc\include\afx.h(38): warning C4996: 'MBCS_Support_Deprecated_In_MFC': MBCS support in MFC is deprecated and may be removed in a future version of MFC.
+                 e:\vs201377\vc\atlmfc\include\afx.h(33) : 参见“MBCS_Support_Deprecated_In_MFC”的声明
+         E:\vs201377\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _WINDOWS /D _DEBUG /D _USING_V110_SDK71_ /D _MBCS /Gm /EHsc /RTC1 /MTd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"Debug\0141124825_houchuanhao.pch" /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt 0141124825_houchuanhao.cpp 0141124825_houchuanhaoDlg.cpp
          0141124825_houchuanhaoDlg.cpp
-     1>c:\users\administrator\documents\visual studio 2013\projects\hch\0141124825_houchuanhao\0141124825_houchuanhao\0141124825_houchuanhaodlg.cpp(261): warning C4002: “min”宏的实参太多
-     1>c:\users\administrator\documents\visual studio 2013\projects\hch\0141124825_houchuanhao\0141124825_houchuanhao\0141124825_houchuanhaodlg.cpp(277): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
-     1>c:\users\administrator\documents\visual studio 2013\projects\hch\0141124825_houchuanhao\0141124825_houchuanhao\0141124825_houchuanhaodlg.cpp(281): warning C4244: “=”: 从“int”转换到“float”，可能丢失数据
-     1>c:\users\administrator\documents\visual studio 2013\projects\hch\0141124825_houchuanhao\0141124825_houchuanhao\0141124825_houchuanhaodlg.cpp(283): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
+     1>c:\users\administrator\documents\visual studio 2013\projects\hch\0141124825_houchuanhao\0141124825_houchuanhao\0141124825_houchuanhaodlg.cpp(287): warning C4002: “min”宏的实参太多
+     1>c:\users\administrator\documents\visual studio 2013\projects\hch\0141124825_houchuanhao\0141124825_houchuanhao\0141124825_houchuanhaodlg.cpp(303): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
+     1>c:\users\administrator\documents\visual studio 2013\projects\hch\0141124825_houchuanhao\0141124825_houchuanhao\0141124825_houchuanhaodlg.cpp(307): warning C4244: “=”: 从“int”转换到“float”，可能丢失数据
+     1>c:\users\administrator\documents\visual studio 2013\projects\hch\0141124825_houchuanhao\0141124825_houchuanhao\0141124825_houchuanhaodlg.cpp(309): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
+     1>c:\users\administrator\documents\visual studio 2013\projects\hch\0141124825_houchuanhao\0141124825_houchuanhao\0141124825_houchuanhaodlg.cpp(423): warning C4018: “>”: 有符号/无符号不匹配
+         0141124825_houchuanhao.cpp
+         正在生成代码...
+       ResourceCompile:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\bin\rc.exe /D _DEBUG /D _USING_V110_SDK71_ /l"0x0804" /IDebug\ /nologo /fo"Debug\0141124825_houchuanhao.res" 0141124825_houchuanhao.rc 
        Link:
-         E:\vs201377\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Administrator\Documents\Visual Studio 2013\Projects\hch\0141124825_houchuanhao\Debug\0141124825_houchuanhao.exe" /INCREMENTAL /NOLOGO /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /manifestinput:E:\vs201377\VC\Include\Manifest\dpiaware.manifest /DEBUG /PDB:"C:\Users\Administrator\Documents\Visual Studio 2013\Projects\hch\0141124825_houchuanhao\Debug\0141124825_houchuanhao.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Administrator\Documents\Visual Studio 2013\Projects\hch\0141124825_houchuanhao\Debug\0141124825_houchuanhao.lib" /MACHINE:X86 Debug\0141124825_houchuanhao.res
+         E:\vs201377\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Administrator\Documents\Visual Studio 2013\Projects\hch\0141124825_houchuanhao\Debug\0141124825_houchuanhao.exe" /INCREMENTAL /NOLOGO /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /manifestinput:E:\vs201377\VC\Include\Manifest\dpiaware.manifest /DEBUG /PDB:"C:\Users\Administrator\Documents\Visual Studio 2013\Projects\hch\0141124825_houchuanhao\Debug\0141124825_houchuanhao.pdb" /SUBSYSTEM:WINDOWS,"5.01" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Administrator\Documents\Visual Studio 2013\Projects\hch\0141124825_houchuanhao\Debug\0141124825_houchuanhao.lib" /MACHINE:X86 Debug\0141124825_houchuanhao.res
          Debug\0141124825_houchuanhao.obj
          Debug\0141124825_houchuanhaoDlg.obj
          Debug\stdafx.obj
@@ -17,4 +26,4 @@
 
 生成成功。
 
-已用时间 00:00:04.09
+已用时间 00:00:37.56
